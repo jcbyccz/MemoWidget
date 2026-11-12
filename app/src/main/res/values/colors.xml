@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="note_default_bg">#FFFFF3CD</color>
+    <color name="error_red">#C62828</color>
+    <!-- 主题淡蓝：工具栏 / 状态栏 / FAB -->
+    <color name="primary">#A8D5F0</color>
+    <color name="primary_dark">#8DC4EA</color>
+    <!-- 淡蓝工具栏上的深色文字与图标 -->
+    <color name="toolbar_text">#17435E</color>
+    <!-- 隐藏签名：浅色模式下与白色背景一致（不可见） -->
+    <color name="author_sig">#FFFFFFFF</color>
+</resources>

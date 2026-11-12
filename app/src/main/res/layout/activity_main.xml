@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F4F5F7">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:navigationIcon="@null">
+
+            <!-- 左上角区：三横线进设置；批量模式下变为返回图标 + 选中计数标题 -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:id="@+id/btn_nav"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:padding="8dp"
+                    android:contentDescription="设置"
+                    android:src="@drawable/ic_drawer"
+                    app:tint="@color/toolbar_text" />
+
+                <TextView
+                    android:id="@+id/batch_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="选择的便签:0个"
+                    android:textColor="@color/toolbar_text"
+                    android:textSize="16sp"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- 右侧动作区：单个容器整体右对齐（Toolbar 对多个 end 子控件有特殊布局逻辑，
+                 拆开设 marginEnd 会错位；容器内按声明顺序从左到右排列） -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <!-- 批量模式：全选/全不选（仅多选时显示） -->
+                <TextView
+                    android:id="@+id/btn_select_all"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:gravity="center"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:text="全选"
+                    android:textColor="@color/toolbar_text"
+                    android:textSize="15sp"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/btn_search"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="4dp"
+                    android:padding="8dp"
+                    android:contentDescription="搜索"
+                    android:src="@drawable/ic_search"
+                    app:tint="@color/toolbar_text" />
+
+                <ImageView
+                    android:id="@+id/btn_menu"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:padding="8dp"
+                    android:contentDescription="菜单"
+                    android:src="@drawable/ic_menu"
+                    app:tint="@color/toolbar_text" />
+            </LinearLayout>
+        </com.google.android.material.appbar.MaterialToolbar>
+
+        <!-- 搜索行（默认隐藏）：背景/高度与工具栏一致（主题色 + actionBarSize），切换时内容区不抖动 -->
+        <LinearLayout
+            android:id="@+id/search_row"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/colorPrimary"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/btn_search_back"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:padding="6dp"
+                android:contentDescription="关闭搜索"
+                android:src="@drawable/ic_arrow_back_dark"
+                app:tint="@color/toolbar_text" />
+
+            <EditText
+                android:id="@+id/search_input"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@null"
+                android:hint="搜索标题或正文"
+                android:textColor="@color/toolbar_text"
+                android:textColorHint="@color/toolbar_text"
+                android:textSize="15sp"
+                android:singleLine="true"
+                android:imeOptions="actionSearch"
+                android:inputType="text"
+                android:layout_marginStart="4dp" />
+
+            <ImageView
+                android:id="@+id/btn_search_clear"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:padding="6dp"
+                android:contentDescription="清空"
+                android:src="@drawable/ic_close"
+                app:tint="@color/toolbar_text"
+                android:visibility="invisible" />
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_notes"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="88dp" />
+
+            <TextView
+                android:id="@+id/tv_empty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="还没有便签\n点击右下角 + 新建一条"
+                android:textColor="#9E9E9E"
+                android:textSize="15sp"
+                android:lineSpacingExtra="4dp"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <!-- 批量删除底栏：通栏红色删除按钮（仅多选模式显示） -->
+        <TextView
+            android:id="@+id/batch_delete"
+            android:layout_width="match_parent"
+            android:layout_height="46dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/bg_batch_delete"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:text="删除"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <!-- 新建菜单：FAB 上方垂直展开（从上往下：待办 / 便签），按钮形状样式与新建 FAB 一致；
+         弹出时 FAB 本体变灰色 X 关闭钮，点它收起菜单。
+         上下各加 16dp 透明垫片：Android 投影由父容器绘制、被容器边界裁剪（clipChildren 管不了），
+         垫片让按钮投影落在容器边界内，便签钮底部阴影不再被切掉；
+         marginBottom 相应 88-16=72dp，保持按钮视觉位置不变 -->
+    <LinearLayout
+        android:id="@+id/fab_menu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="72dp"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:clipChildren="false"
+        android:visibility="gone">
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="16dp" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btn_new_todo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="新建待办"
+            android:stateListAnimator="@null"
+            app:rippleColor="@android:color/transparent"
+            app:tint="@android:color/white"
+            android:src="@drawable/ic_todo_add" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btn_new_note"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:contentDescription="新建便签"
+            android:stateListAnimator="@null"
+            app:rippleColor="@android:color/transparent"
+            app:tint="@android:color/white"
+            android:src="@drawable/ic_note_pencil" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="16dp" />
+    </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:contentDescription="新建"
+        android:stateListAnimator="@null"
+        app:rippleColor="@android:color/transparent"
+        android:src="@drawable/ic_add" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

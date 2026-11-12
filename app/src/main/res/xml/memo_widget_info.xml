@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 支持多种尺寸：最小 1x1，默认建议 2x1，可自由拉伸至 4x4 -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="40dp"
+    android:minHeight="40dp"
+    android:targetCellWidth="2"
+    android:targetCellHeight="1"
+    android:maxResizeWidth="320dp"
+    android:maxResizeHeight="320dp"
+    android:updatePeriodMillis="0"
+    android:initialLayout="@layout/widget_memo"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen"
+    android:configure="com.cczsx.notepad.widget.MemoWidgetConfigActivity"
+    android:previewImage="@drawable/widget_preview_v4"
+    android:description="@string/widget_desc" />

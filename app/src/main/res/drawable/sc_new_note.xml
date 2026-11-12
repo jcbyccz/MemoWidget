@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 快捷方式图标·新建便签：蓝色圆底 + 白色加号（单矢量，无 tint 依赖，避免启动器渲染异常） -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#3D8BFD"
+        android:pathData="M12,12m-12,0a12,12 0 1,0 24,0a12,12 0 1,0 -24,0" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M12,7a1,1 0 0,1 1,1v3h3a1,1 0 0,1 0,2h-3v3a1,1 0 0,1 -2,0v-3H8a1,1 0 0,1 0,-2h3V8a1,1 0 0,1 1,-1z" />
+</vector>

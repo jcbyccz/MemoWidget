@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/menu_title_view"
+        android:title="查看方式"
+        android:enabled="false" />
+
+    <group android:id="@+id/group_view"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/action_view_list"
+            android:title="列表视图" />
+        <item
+            android:id="@+id/action_view_card"
+            android:title="双列卡片" />
+        <item
+            android:id="@+id/action_view_grid"
+            android:title="网格视图" />
+        <item
+            android:id="@+id/action_view_title"
+            android:title="标题视图" />
+    </group>
+
+    <item
+        android:id="@+id/menu_title_order"
+        android:title="排列方式"
+        android:enabled="false" />
+
+    <group android:id="@+id/group_order"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/action_order_modified"
+            android:title="按修改顺序" />
+        <item
+            android:id="@+id/action_order_added"
+            android:title="按添加顺序" />
+        <item
+            android:id="@+id/action_order_title"
+            android:title="按标题排序" />
+    </group>
+
+    <item
+        android:id="@+id/action_sort_desc"
+        android:title="倒序排列"
+        android:checkable="true" />
+
+    <!-- 批量删除：进入多选模式，可勾选多条便签一起移入回收站 -->
+    <item
+        android:id="@+id/action_batch_delete"
+        android:title="删除便签" />
+</menu>

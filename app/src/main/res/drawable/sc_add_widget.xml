@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 快捷方式图标·添加小部件：蓝色圆底 + 白色便签文档（单矢量，无 tint 依赖，避免启动器渲染异常） -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#3D8BFD"
+        android:pathData="M12,12m-12,0a12,12 0 1,0 24,0a12,12 0 1,0 -24,0" />
+    <group
+        android:scaleX="0.55"
+        android:scaleY="0.55"
+        android:translateX="5.4"
+        android:translateY="5.4">
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M6,2h9l5,5v13a2,2 0 0,1 -2,2H6a2,2 0 0,1 -2,-2V4a2,2 0 0,1 2,-2zM14,3.5L14,8h4.5L14,3.5zM14,9h-5v2h5V9zM9,13h6v2H9zM9,17h6v2H9z" />
+    </group>
+</vector>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- 白色便签纸（右上角折角造型） -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M34,32 h21 l21,21 v23 a4,4 0 0,1 -4,4 H38 a4,4 0 0,1 -4,-4 z" />
+    <!-- 折角 -->
+    <path
+        android:fillColor="#FFFFE0B2"
+        android:pathData="M55,32 l21,21 h-17 a4,4 0 0,1 -4,-4 z" />
+    <!-- 文字行 -->
+    <path
+        android:fillColor="#FFB0BEC5"
+        android:pathData="M40,58 h26 a1.8,1.8 0 0,1 0,3.6 h-26 a1.8,1.8 0 0,1 0,-3.6 z" />
+    <path
+        android:fillColor="#FFB0BEC5"
+        android:pathData="M40,66 h20 a1.8,1.8 0 0,1 0,3.6 h-20 a1.8,1.8 0 0,1 0,-3.6 z" />
+    <!-- 禾苗点缀（左下角两片叶） -->
+    <path
+        android:fillColor="#FF66BB6A"
+        android:pathData="M40,76 c0,0 -4,-0.5 -5.5,-4.5 c4,0.2 5.5,4.5 5.5,4.5 z" />
+    <path
+        android:fillColor="#FF81C784"
+        android:pathData="M44,76 c0,0 4.2,-0.4 5.8,-4.6 c-4.2,0 -5.8,4.6 -5.8,4.6 z" />
+</vector>

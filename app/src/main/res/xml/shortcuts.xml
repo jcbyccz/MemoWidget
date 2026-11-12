@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 长按应用图标的快捷方式（App Shortcuts）：
+     1. 新建便签：直接进编辑页
+     2. 添加小部件：请求系统把便签小部件钉到桌面（Android 8+），随后自动弹配置页选便签 -->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/sc_new_note"
+        android:shortcutId="new_note"
+        android:shortcutLongLabel="@string/sc_new_note_long"
+        android:shortcutShortLabel="@string/sc_new_note_short">
+        <!-- 单 intent（MIUI 等启动器对 <intents> 多意图返回栈解析异常，会整条丢弃） -->
+        <intent
+            android:action="com.cczsx.notepad.action.NEW_NOTE"
+            android:targetClass="com.cczsx.notepad.ui.EditNoteActivity"
+            android:targetPackage="com.cczsx.notepad" />
+    </shortcut>
+
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/sc_add_widget"
+        android:shortcutId="pin_widget"
+        android:shortcutLongLabel="@string/sc_pin_widget_long"
+        android:shortcutShortLabel="@string/sc_pin_widget_short">
+        <intent
+            android:action="com.cczsx.notepad.action.PIN_WIDGET"
+            android:targetClass="com.cczsx.notepad.widget.PinWidgetActivity"
+            android:targetPackage="com.cczsx.notepad" />
+    </shortcut>
+</shortcuts>

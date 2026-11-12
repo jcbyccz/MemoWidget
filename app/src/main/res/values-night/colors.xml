@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 深色模式下签名显示为可见灰色（与栏目标题同色系） -->
+    <color name="author_sig">#FF9E9E9E</color>
+</resources>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 已完成区齿轮菜单弹窗（参考截图）：白底圆角 + 右上角关闭叉 + 三个文本选项 -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:orientation="vertical"
+        android:background="@drawable/bg_dialog_round">
+
+        <ImageView
+            android:id="@+id/btn_dialog_close"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="end"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:padding="4dp"
+            android:contentDescription="关闭"
+            android:src="@drawable/ic_close" />
+
+        <TextView
+            android:id="@+id/btn_hide_done"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:gravity="center_vertical"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:text="隐藏已完成的事情"
+            android:textColor="#37474F"
+            android:textSize="15sp"
+            android:background="?android:attr/selectableItemBackground" />
+
+        <TextView
+            android:id="@+id/btn_uncheck_all"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:gravity="center_vertical"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:text="已完成的事情全部解除"
+            android:textColor="#37474F"
+            android:textSize="15sp"
+            android:background="?android:attr/selectableItemBackground" />
+
+        <TextView
+            android:id="@+id/btn_delete_done"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:gravity="center_vertical"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="6dp"
+            android:text="删除已完成的事情"
+            android:textColor="#37474F"
+            android:textSize="15sp"
+            android:background="?android:attr/selectableItemBackground" />
+    </LinearLayout>
+</FrameLayout>

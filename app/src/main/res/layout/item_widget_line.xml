@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 小部件滚动列表的单行文字。
+     includeFontPadding=false + 0 内边距：行高≈字号×1.17，12sp 时 2 格高组件可见 4 行 -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_line_text"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:includeFontPadding="false"
+    android:textColor="#333333"
+    android:textSize="14sp"
+    android:gravity="start" />

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 批量选择：选中态圆形复选框（深色实底，配白色 ✓ 文字） -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="#EE212121" />
+</shape>

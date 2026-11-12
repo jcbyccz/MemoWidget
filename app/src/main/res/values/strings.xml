@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">正闲拾笺</string>
+    <string name="widget_name">正闲拾笺文字便签</string>
+    <string name="widget_desc">在桌面显示一条文字便签，支持 1x1 / 2x1 / 2x2 / 4x1 及任意尺寸拉伸，可自定义样式</string>
+
+    <!-- 长按应用图标的快捷方式 -->
+    <string name="sc_new_note_short">新建便签</string>
+    <string name="sc_new_note_long">新建便签</string>
+    <string name="sc_pin_widget_short">添加小部件</string>
+    <string name="sc_pin_widget_long">添加桌面小部件</string>
+</resources>

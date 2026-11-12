@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 字体效果-投影：A 字形加大与 U 齐平（顶4.5底19.8）+ 右下淡色错位影（投影隐喻） -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <!-- 错位淡色 A 影（主体右下 +1.5 偏移） -->
+    <path android:pathData="M8.5,21.3 L13.5,6 L18.5,21.3"
+        android:strokeColor="#6617435E" android:strokeWidth="2.4"
+        android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:fillColor="#00000000" />
+    <!-- 主 A：顶点与 U 顶平齐，底脚与 B 底平齐 -->
+    <path android:pathData="M7,19.8 L12,4.5 L17,19.8"
+        android:strokeColor="#FF17435E" android:strokeWidth="2.4"
+        android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:fillColor="#00000000" />
+    <path android:pathData="M8.6,14.5 H15.4"
+        android:strokeColor="#FF17435E" android:strokeWidth="2.2"
+        android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:fillColor="#00000000" />
+</vector>

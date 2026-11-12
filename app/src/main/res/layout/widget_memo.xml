@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 单布局方案：同一布局内同时放「静态文字层」与「滚动列表层」，按便签类型切显隐。
+     好处：组件从创建到更新始终是同一个 layoutId，宿主不需要换布局重建视图，
+     集合控件（ListView）在宿主第一次 inflate 时就存在，数据连接更可靠。 -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#00000000">
+
+    <!-- 背景画布：应用内 Canvas 绘制圆角背景+描边环后 setImageViewBitmap 传入 -->
+    <ImageView
+        android:id="@+id/widget_canvas"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        android:contentDescription="@null" />
+
+    <!-- 静态文字层：普通便签 / 未绑定占位。
+         includeFontPadding=false + 4dp 上下内边距：12sp 时 2 格高组件可显示 4 行 -->
+    <TextView
+        android:id="@+id/widget_text"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:paddingTop="7dp"
+        android:paddingBottom="4dp"
+        android:includeFontPadding="false"
+        android:text="便签"
+        android:textColor="#333333"
+        android:textSize="16sp"
+        android:gravity="top|start" />
+
+    <!-- 滚动层：开启"滚动"的便签由 ListView 原生滚动展示全文。
+         clipToPadding 必须为 true：行内容裁剪在内边距内，滚动时不会画到边框环上 -->
+    <ListView
+        android:id="@+id/widget_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:paddingTop="7dp"
+        android:paddingBottom="4dp"
+        android:clipToPadding="true"
+        android:divider="@null"
+        android:dividerHeight="0dp"
+        android:cacheColorHint="#00000000"
+        android:scrollbars="none"
+        android:visibility="gone" />
+</FrameLayout>

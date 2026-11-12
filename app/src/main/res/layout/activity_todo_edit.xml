@@ -1,0 +1,547 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:animateLayoutChanges="true"
+    android:background="?attr/colorSurface">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:navigationIcon="@drawable/ic_back"
+        app:titleTextColor="@color/toolbar_text">
+
+        <!-- 右上角确认按钮：保存并退出（最先声明 → 最靠右，与便签页一致） -->
+        <ImageView
+            android:id="@+id/btn_confirm"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="end"
+            android:padding="8dp"
+            android:contentDescription="确认保存"
+            android:src="@drawable/ic_check"
+            app:tint="@color/toolbar_text"
+            android:background="?android:attr/selectableItemBackgroundBorderless" />
+
+        <!-- 重做：恢复被撤销的一次编辑 -->
+        <ImageView
+            android:id="@+id/btn_redo"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="end"
+            android:padding="8dp"
+            android:contentDescription="重做"
+            android:src="@drawable/ic_redo"
+            app:tint="@color/toolbar_text"
+            android:background="?android:attr/selectableItemBackgroundBorderless" />
+
+        <!-- 撤销：回退最近一次编辑 -->
+        <ImageView
+            android:id="@+id/btn_undo"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="end"
+            android:padding="8dp"
+            android:contentDescription="撤销"
+            android:src="@drawable/ic_undo"
+            app:tint="@color/toolbar_text"
+            android:background="?android:attr/selectableItemBackgroundBorderless" />
+    </com.google.android.material.appbar.MaterialToolbar>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="16dp">
+
+            <!-- 题目 -->
+            <EditText
+                android:id="@+id/ed_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="题目"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#212121"
+                android:textColorHint="#BDBDBD"
+                android:maxLines="2"
+                android:inputType="textCapSentences"
+                android:background="@null"
+                android:padding="4dp" />
+
+            <!-- 未完成条目行容器（代码动态构建） -->
+            <LinearLayout
+                android:id="@+id/rows_undo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="4dp" />
+
+            <!-- ＋添加目录：点击加一行（文案与参考截图一致） -->
+            <TextView
+                android:id="@+id/btn_add_item"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:gravity="center_vertical"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:text="＋ 添加目录"
+                android:textColor="#9E9E9E"
+                android:textSize="14sp" />
+
+            <!-- 分割线（有已完成条目时才显示） -->
+            <View
+                android:id="@+id/divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E0E0E0"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="2dp"
+                android:visibility="gone" />
+
+            <!-- 已完成区标题行：箭头(折叠) + 标题 + 齿轮 -->
+            <LinearLayout
+                android:id="@+id/done_header"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/btn_done_collapse"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:padding="2dp"
+                    android:contentDescription="折叠已完成"
+                    android:src="@drawable/ic_arrow_down_small" />
+
+                <TextView
+                    android:id="@+id/tv_done_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="2dp"
+                    android:text="已完该做的事(0)"
+                    android:textColor="#9E9E9E"
+                    android:textSize="13sp" />
+
+                <ImageView
+                    android:id="@+id/btn_done_gear"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:padding="5dp"
+                    android:contentDescription="已完成设置"
+                    android:src="@drawable/ic_settings"
+                    app:tint="#9E9E9E"
+                    android:background="?android:attr/selectableItemBackgroundBorderless" />
+            </LinearLayout>
+
+            <!-- 已完成条目行容器（代码动态构建） -->
+            <LinearLayout
+                android:id="@+id/rows_done"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- ===== 底部固定区：时间与「设置小部件设计」按钮固定在底部，长内容不需滚动 ===== -->
+    <!-- 修改时间（固定于底部区顶部，右对齐） -->
+    <TextView
+        android:id="@+id/tv_update_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="6dp"
+        android:gravity="end"
+        android:textColor="#9E9E9E"
+        android:textSize="12sp" />
+
+    <!-- 设置面板（默认隐藏；展开时全部展开显示完整内容，正文区被整体上移压缩，
+         「将当前样式设置为默认」位于面板最底部；与便签编辑页同款） -->
+    <ScrollView
+        android:id="@+id/style_panel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fillViewport="true"
+        android:scrollbars="none"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp">
+
+                <TextView
+                    android:id="@+id/preview_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="44dp"
+                    android:maxLines="3"
+                    android:ellipsize="end"
+                    android:padding="8dp"
+                    android:text="小部件预览示例"
+                    android:textSize="14sp"
+                    android:textColor="#333333"
+                    android:background="@color/note_default_bg"
+                    android:layout_marginTop="10dp" />
+
+                <!-- 颜色行：字体颜色 → 边框颜色 → 背景颜色 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="6dp"
+                    android:gravity="center_vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="字体颜色"
+                        android:textSize="14sp"
+                        android:textColor="#757575"
+                        android:layout_marginEnd="12dp" />
+                    <HorizontalScrollView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:scrollbars="none">
+                        <LinearLayout
+                            android:id="@+id/font_swatches"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:padding="3dp" />
+                    </HorizontalScrollView>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center_vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="边框颜色"
+                        android:textSize="14sp"
+                        android:textColor="#757575"
+                        android:layout_marginEnd="12dp" />
+                    <HorizontalScrollView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:scrollbars="none">
+                        <LinearLayout
+                            android:id="@+id/border_swatches"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:padding="3dp" />
+                    </HorizontalScrollView>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center_vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="背景颜色"
+                        android:textSize="14sp"
+                        android:textColor="#757575"
+                        android:layout_marginEnd="12dp" />
+                    <HorizontalScrollView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:scrollbars="none">
+                        <LinearLayout
+                            android:id="@+id/bg_swatches"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:padding="3dp" />
+                    </HorizontalScrollView>
+                </LinearLayout>
+
+                <TextView style="@style/SectionLabel" android:text="背景不透明度（0% = 全透明）" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <SeekBar
+                        android:id="@+id/seek_alpha"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:max="100"
+                        android:progress="100" />
+                    <TextView
+                        android:id="@+id/tv_alpha"
+                        android:layout_width="48dp"
+                        android:layout_height="wrap_content"
+                        android:text="100%"
+                        android:gravity="end" />
+                </LinearLayout>
+
+                <!-- 排：水平对齐 | 字体大小 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="10dp"
+                        android:orientation="vertical">
+                        <TextView style="@style/RowLabel" android:text="水平对齐" />
+                        <com.google.android.material.button.MaterialButtonToggleGroup
+                            android:id="@+id/group_align_h"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:singleSelection="true"
+                            app:selectionRequired="true">
+                            <Button android:id="@+id/btn_align_hl" style="@style/ModeButton"
+                                android:text="" app:icon="@drawable/ic_align_left"
+                                app:iconGravity="textStart" app:iconPadding="0dp"
+                                app:iconSize="18dp" android:contentDescription="左对齐" />
+                            <Button android:id="@+id/btn_align_hc" style="@style/ModeButton"
+                                android:text="" app:icon="@drawable/ic_align_center"
+                                app:iconGravity="textStart" app:iconPadding="0dp"
+                                app:iconSize="18dp" android:contentDescription="水平居中" />
+                            <Button android:id="@+id/btn_align_hr" style="@style/ModeButton"
+                                android:text="" app:icon="@drawable/ic_align_right"
+                                app:iconGravity="textStart" app:iconPadding="0dp"
+                                app:iconSize="18dp" android:contentDescription="右对齐" />
+                        </com.google.android.material.button.MaterialButtonToggleGroup>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView style="@style/RowLabel" android:text="字体大小" />
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+                            <Button
+                                android:id="@+id/btn_size_minus"
+                                style="@style/Widget.Material3.Button.TextButton"
+                                android:layout_width="40dp"
+                                android:layout_height="36dp"
+                                android:minWidth="0dp"
+                                android:minHeight="0dp"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:text="−"
+                                android:textSize="20sp"
+                                android:textColor="#424242" />
+                            <TextView
+                                android:id="@+id/tv_size"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:text="14sp"
+                                android:textSize="15sp" />
+                            <Button
+                                android:id="@+id/btn_size_plus"
+                                style="@style/Widget.Material3.Button.TextButton"
+                                android:layout_width="40dp"
+                                android:layout_height="36dp"
+                                android:minWidth="0dp"
+                                android:minHeight="0dp"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:text="＋"
+                                android:textSize="20sp"
+                                android:textColor="#424242" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- 排：垂直对齐 | 字体效果 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="4dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="10dp"
+                        android:orientation="vertical">
+                        <TextView style="@style/RowLabel" android:text="垂直对齐" />
+                        <com.google.android.material.button.MaterialButtonToggleGroup
+                            android:id="@+id/group_align_v"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:singleSelection="true"
+                            app:selectionRequired="true">
+                            <Button android:id="@+id/btn_align_vt" style="@style/ModeButton"
+                                android:text="" app:icon="@drawable/ic_align_top"
+                                app:iconGravity="textStart" app:iconPadding="0dp"
+                                app:iconSize="18dp" android:contentDescription="顶对齐" />
+                            <Button android:id="@+id/btn_align_vc" style="@style/ModeButton"
+                                android:text="" app:icon="@drawable/ic_align_middle"
+                                app:iconGravity="textStart" app:iconPadding="0dp"
+                                app:iconSize="18dp" android:contentDescription="垂直居中" />
+                            <Button android:id="@+id/btn_align_vb" style="@style/ModeButton"
+                                android:text="" app:icon="@drawable/ic_align_bottom"
+                                app:iconGravity="textStart" app:iconPadding="0dp"
+                                app:iconSize="18dp" android:contentDescription="底对齐" />
+                        </com.google.android.material.button.MaterialButtonToggleGroup>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView style="@style/RowLabel" android:text="字体效果" />
+                        <com.google.android.material.button.MaterialButtonToggleGroup
+                            android:id="@+id/toggle_bold"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:singleSelection="false"
+                            app:selectionRequired="false">
+                            <Button android:id="@+id/btn_bold" style="@style/ModeButton"
+                                android:text="" app:icon="@drawable/ic_eff_bold"
+                                app:iconGravity="textStart" app:iconPadding="0dp"
+                                app:iconSize="18dp" android:contentDescription="加粗" />
+                            <Button android:id="@+id/btn_italic" style="@style/ModeButton"
+                                android:text="" app:icon="@drawable/ic_eff_italic"
+                                app:iconGravity="textStart" app:iconPadding="0dp"
+                                app:iconSize="18dp" android:contentDescription="斜体" />
+                            <Button android:id="@+id/btn_underline" style="@style/ModeButton"
+                                android:text="" app:icon="@drawable/ic_eff_underline"
+                                app:iconGravity="textStart" app:iconPadding="0dp"
+                                app:iconSize="18dp" android:contentDescription="下划线" />
+                            <Button android:id="@+id/btn_shadow" style="@style/ModeButton"
+                                android:text="" app:icon="@drawable/ic_eff_shadow"
+                                app:iconGravity="textStart" app:iconPadding="0dp"
+                                app:iconSize="18dp" android:contentDescription="投影" />
+                        </com.google.android.material.button.MaterialButtonToggleGroup>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- 排：滚动显示 | 置顶 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center_vertical">
+                    <CheckBox
+                        android:id="@+id/chk_scroll"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:minHeight="38dp"
+                        android:paddingTop="0dp"
+                        android:paddingBottom="0dp"
+                        android:textSize="13sp"
+                        android:text="内容超出后滚动显示" />
+                    <CheckBox
+                        android:id="@+id/chk_pin"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minHeight="38dp"
+                        android:paddingTop="0dp"
+                        android:paddingBottom="0dp"
+                        android:textSize="13sp"
+                        android:text="置顶" />
+                </LinearLayout>
+
+                <!-- 移入回收站 + 保存 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp">
+                    <Button
+                        android:id="@+id/btn_delete"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="移入回收站"
+                        android:textColor="@color/error_red" />
+                    <Button
+                        android:id="@+id/btn_save"
+                        style="@style/Widget.Material3.Button"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="12dp"
+                        android:text="保存" />
+                </LinearLayout>
+
+                <!-- 将当前样式保存为默认样式：全称按钮，面板最底部 -->
+                <Button
+                    android:id="@+id/btn_set_default"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="38dp"
+                    android:minWidth="0dp"
+                    android:minHeight="38dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:layout_marginTop="10dp"
+                    android:textSize="13sp"
+                    android:textColor="#37474F"
+                    android:text="将当前样式设置为默认" />
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- 设置小部件设计按钮（固定屏幕最底部；再点一次收起面板并丝滑回底） -->
+    <Button
+        android:id="@+id/btn_widget_design"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="12dp"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:strokeColor="#E0E0E0"
+        android:text="设置小部件设计"
+        android:textColor="#212121"
+        android:textSize="14sp" />
+</LinearLayout>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 添加小部件引导页：显示一键添加的发起结果与手动添加引导 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:padding="24dp"
+    android:background="?attr/colorSurface">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:text="添加桌面小部件"
+        android:textColor="#212121"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tv_pin_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:lineSpacingExtra="4dp"
+        android:text="正在请求系统添加小部件…"
+        android:textColor="#424242"
+        android:textSize="15sp" />
+
+    <!-- 权限提示：一键添加依赖桌面快捷方式权限，未授权时需到系统权限管理开启 -->
+    <TextView
+        android:id="@+id/tv_pin_permission_hint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:lineSpacingExtra="3dp"
+        android:text="本应用需要在权限管理中开启桌面快捷方式的权限。"
+        android:textColor="#9E9E9E"
+        android:textSize="13sp" />
+
+    <Button
+        android:id="@+id/btn_pin_close"
+        style="@style/Widget.Material3.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="关闭" />
+</LinearLayout>

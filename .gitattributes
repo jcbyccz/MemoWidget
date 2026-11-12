@@ -1,0 +1,14 @@
+# 换行符规则：统一由 git 管理
+* text=auto
+
+# gradlew 必须保持 LF（Linux/macOS 可执行）
+gradlew text eol=lf
+
+# Windows 批处理
+*.bat text eol=crlf
+
+# 二进制资源
+*.png binary
+*.jpg binary
+*.webp binary
+*.jar binary

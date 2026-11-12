@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 白底圆角弹窗背景 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#FFFFFFFF" />
+    <corners android:radius="20dp" />
+    <stroke android:width="0.5dp" android:color="#FFE0E0E0" />
+</shape>

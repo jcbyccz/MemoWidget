@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 滚动布局·底对齐版：与 widget_memo_scroll 相同，仅 ListView 增加 android:stackFromBottom，
+     行项从底部向上堆叠。垂直对齐设为“底”且勾选滚动时使用。 -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#00000000">
+
+    <!-- 背景画布：应用内 Canvas 绘制圆角背景+描边环后 setImageViewBitmap 传入 -->
+    <ImageView
+        android:id="@+id/widget_canvas"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        android:contentDescription="@null" />
+
+    <ListView
+        android:id="@+id/widget_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:stackFromBottom="true"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:clipToPadding="false"
+        android:divider="@null"
+        android:dividerHeight="0dp"
+        android:cacheColorHint="#00000000" />
+</FrameLayout>
