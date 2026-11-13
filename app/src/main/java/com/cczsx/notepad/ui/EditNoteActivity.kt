@@ -275,19 +275,34 @@ class EditNoteActivity : AppCompatActivity() {
         lastPushAt = 0L
     }
 
-    /** 程序化回放一段文本状态（挂起监听记录，光标落到文本末尾） */
+    /** 程序化回放一段文本状态（挂起监听记录），光标落到本次改动的位置（差异锚点推算） */
     private fun applySnap(snap: TextSnap) {
         applyingHistory = true
-        if (edTitle.text.toString() != snap.title) {
+        val oldTitle = edTitle.text.toString()
+        val oldContent = edContent.text.toString()
+        if (oldTitle != snap.title) {
             edTitle.setText(snap.title)
-            edTitle.setSelection(snap.title.length)
+            edTitle.setSelection(editAnchor(oldTitle, snap.title))
         }
-        if (edContent.text.toString() != snap.content) {
+        if (oldContent != snap.content) {
             edContent.setText(snap.content)
-            edContent.setSelection(snap.content.length)
+            edContent.setSelection(editAnchor(oldContent, snap.content))
         }
         applyingHistory = false
         updateHistoryButtons()
+    }
+
+    /**
+     * 计算回放后的光标锚点：取新旧文本的公共前缀与公共后缀，围出的差异区即本次改动的位置，
+     * 光标落在差异区末端（重做/插入后跟住新文本，撤销/删除后停在删除点）。
+     */
+    private fun editAnchor(old: String, new: String): Int {
+        val maxP = minOf(old.length, new.length)
+        var p = 0
+        while (p < maxP && old[p] == new[p]) p++
+        var s = 0
+        while (s < maxP - p && old[old.length - 1 - s] == new[new.length - 1 - s]) s++
+        return maxOf(p, new.length - s).coerceIn(0, new.length)
     }
 
     private fun updateHistoryButtons() {

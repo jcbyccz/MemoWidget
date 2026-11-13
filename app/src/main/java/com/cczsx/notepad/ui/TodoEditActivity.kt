@@ -619,10 +619,13 @@ class TodoEditActivity : AppCompatActivity() {
 
     private fun applySnap(snap: TodoSnap) {
         applyingHistory = true
+        // 回放前快照，用于回放后按差异锚点定位本次改动的光标
+        val oldTitle = todo.title
+        val oldTexts = todo.items.map { it.text }
         todo.title = snap.title
         if (edTitle.text.toString() != snap.title) {
             edTitle.setText(snap.title)
-            edTitle.setSelection(snap.title.length)
+            edTitle.setSelection(editAnchor(oldTitle, snap.title))
         }
         // 条目恢复：复用现有对象，多退少补
         while (todo.items.size > snap.items.size) todo.items.removeAt(todo.items.size - 1)
@@ -635,8 +638,32 @@ class TodoEditActivity : AppCompatActivity() {
             }
         }
         rebuildRows()
+        // 行重建会丢失焦点：把焦点与光标放回本次文本改动所在的行，跟随编辑位置
+        for (i in todo.items.indices) {
+            val old = oldTexts.getOrNull(i) ?: ""
+            val new = snap.items[i].first
+            if (old == new) continue
+            val row = rowCache[todo.items[i]] as? LinearLayout ?: continue
+            val edit = row.getChildAt(2) as? EditText ?: continue
+            edit.requestFocus()
+            edit.setSelection(editAnchor(old, new))
+            break
+        }
         applyingHistory = false
         updateHistoryButtons()
+    }
+
+    /**
+     * 计算回放后的光标锚点：取新旧文本的公共前缀与公共后缀，围出的差异区即本次改动的位置，
+     * 光标落在差异区末端（重做/插入后跟住新文本，撤销/删除后停在删除点）。
+     */
+    private fun editAnchor(old: String, new: String): Int {
+        val maxP = minOf(old.length, new.length)
+        var p = 0
+        while (p < maxP && old[p] == new[p]) p++
+        var s = 0
+        while (s < maxP - p && old[old.length - 1 - s] == new[new.length - 1 - s]) s++
+        return maxOf(p, new.length - s).coerceIn(0, new.length)
     }
 
     private fun updateHistoryButtons() {
