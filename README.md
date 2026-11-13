@@ -41,10 +41,7 @@ sdk.dir=D\:\\path\\to\\Android\\Sdk
 
 - `app/src/main/java/com/cczsx/notepad/` — Kotlin 源码
 - `app/src/main/res/` — 资源（图标、小部件预览图、布局）
-- `history/` — 本地 APK 版本归档，仅本机保留，不入库
 
 ## 许可证
 
 [MIT](LICENSE) © 2026 jcbyccz
-
-> AI生成
