@@ -13,6 +13,7 @@ local.properties
 # 签名文件（永不提交）
 *.jks
 *.keystore
+keystore.properties
 
 # 交付产物与本地归档
 *.apk
