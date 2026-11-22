@@ -595,14 +595,20 @@ class MainActivity : AppCompatActivity() {
                 when {
                     t.isBlank() && c.isBlank() -> {
                         title.text = "空便签"
+                        // 复用安全：恢复布局默认行数
+                        title.maxLines = 2
                         content?.visibility = View.GONE
                     }
                     t.isBlank() -> {
-                        // 无标题：正文升为标题行
+                        // 无标题：正文升为标题行；显示行数与「题目+4 行内容」的内容
+                        // 行数统一（2026-11-20 用户定稿），截断同样以省略号收尾
+                        title.maxLines = if (mode >= 1) 4 else 2
                         title.text = c
                         content?.visibility = View.GONE
                     }
                     else -> {
+                        // 复用安全：恢复布局默认行数
+                        title.maxLines = 2
                         title.text = t
                         content?.text = c
                         content?.visibility = View.VISIBLE

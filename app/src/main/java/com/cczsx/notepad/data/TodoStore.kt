@@ -67,6 +67,13 @@ object TodoStore {
         }
     }
 
+    /** 过滤掉空白条目（text 为空白 = 无内容的空行）。所有读写统一在此清理，
+     *  避免历史落库/备份导入的空行被渲染或再次持久化 */
+    private fun Todo.cleanItems(): Todo {
+        items = items.filter { it.text.isNotBlank() }.toMutableList()
+        return this
+    }
+
     fun togglePin(id: Long) {
         val t = getById(id) ?: return
         t.pinned = !t.pinned
@@ -157,7 +164,7 @@ object TodoStore {
 
     private fun saveAll(list: List<Todo>) {
         val arr = JSONArray()
-        list.forEach { arr.put(it.toJson()) }
+        list.forEach { arr.put(it.copy(items = it.items.filter { i -> i.text.isNotBlank() }.toMutableList()).toJson()) }
         prefs().edit().putString(KEY_TODOS, arr.toString()).apply()
     }
 
@@ -167,7 +174,7 @@ object TodoStore {
         try {
             val arr = JSONArray(raw)
             for (i in 0 until arr.length()) {
-                list.add(Todo.fromJson(arr.getJSONObject(i)))
+                list.add(Todo.fromJson(arr.getJSONObject(i)).cleanItems())
             }
         } catch (_: Exception) {
             // 数据损坏时返回空列表，避免崩溃

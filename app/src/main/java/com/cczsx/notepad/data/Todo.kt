@@ -44,6 +44,10 @@ data class Todo(
     var alignH: Int = 1,
     var alignV: Int = 0,
     var scrollEnabled: Boolean = true,
+    // 小部件背景照片（空串 = 无；与便签同款样式语义）
+    var bgPhoto: String = "",
+    // 待办照片：文件名存在 files/photos/（最多 10 张，与便签照片同款机制）
+    var photos: MutableList<String> = mutableListOf(),
     // 状态
     var pinned: Boolean = false,
     /** 齿轮菜单：隐藏已完成的事情 */
@@ -72,6 +76,10 @@ data class Todo(
         put("alignH", alignH)
         put("alignV", alignV)
         put("scrollEnabled", scrollEnabled)
+        put("bgPhoto", bgPhoto)
+        val photoArr = JSONArray()
+        photos.forEach { photoArr.put(it) }
+        put("photos", photoArr)
         put("pinned", pinned)
         put("hideDone", hideDone)
         put("deleted", deleted)
@@ -90,7 +98,8 @@ data class Todo(
         title,
         items.joinToString("|") { "${it.text}=${it.done}" },
         bgColor, alpha, borderColor, fontColor, fontSize,
-        bold, italic, underline, shadow, alignH, alignV, scrollEnabled, hideDone
+        bold, italic, underline, shadow, alignH, alignV, scrollEnabled, hideDone, bgPhoto,
+        photos.joinToString("|")
     ).joinToString("§")
 
     /** 转成仅含样式字段的 Note 视图对象，复用 TextStyler / 颜色行等既有渲染逻辑 */
@@ -100,6 +109,7 @@ data class Todo(
         fontColor = fontColor, fontSize = fontSize,
         bold = bold, italic = italic, underline = underline, shadow = shadow,
         alignH = alignH, alignV = alignV, scrollEnabled = scrollEnabled,
+        bgPhoto = bgPhoto,
         pinned = pinned
     )
 
@@ -123,6 +133,11 @@ data class Todo(
             alignH = o.optInt("alignH", 1),
             alignV = o.optInt("alignV", 0),
             scrollEnabled = o.optBoolean("scrollEnabled", true),
+            bgPhoto = o.optString("bgPhoto", ""),
+            photos = mutableListOf<String>().also { list ->
+                val arr = o.optJSONArray("photos")
+                if (arr != null) for (i in 0 until arr.length()) list.add(arr.getString(i))
+            },
             pinned = o.optBoolean("pinned", false),
             hideDone = o.optBoolean("hideDone", false),
             deleted = o.optBoolean("deleted", false),

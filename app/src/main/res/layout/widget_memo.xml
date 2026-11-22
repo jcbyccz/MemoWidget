@@ -17,14 +17,16 @@
         android:contentDescription="@null" />
 
     <!-- 静态文字层：普通便签 / 未绑定占位。
-         includeFontPadding=false + 4dp 上下内边距：12sp 时 2 格高组件可显示 4 行 -->
+         includeFontPadding=false + 上 6dp、下 4dp 内边距（2026-11-20 用户定稿：上边
+         收紧改为 6dp，原来上下各 4dp 偏高）。
+         左右内边距 2dp/2dp 对称（2026-11-19 用户定稿回归；总宽 4dp 与行宽预算扣宽一致） -->
     <TextView
         android:id="@+id/widget_text"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingStart="10dp"
-        android:paddingEnd="10dp"
-        android:paddingTop="7dp"
+        android:paddingStart="2dp"
+        android:paddingEnd="2dp"
+        android:paddingTop="6dp"
         android:paddingBottom="4dp"
         android:includeFontPadding="false"
         android:text="便签"
@@ -32,15 +34,117 @@
         android:textSize="16sp"
         android:gravity="top|start" />
 
-    <!-- 滚动层：开启"滚动"的便签由 ListView 原生滚动展示全文。
-         clipToPadding 必须为 true：行内容裁剪在内边距内，滚动时不会画到边框环上 -->
-    <ListView
-        android:id="@+id/widget_list"
+    <!-- 投影文字层：与普通层同款、只多四个 shadow 属性，默认隐藏。
+         RemoteViews 设不了投影（setShadowLayer 多参数方法不在宿主白名单，
+         Spannable 也没有阴影 span），只能靠布局属性承载——开投影时文字切到
+         这一层显示，两层始终互斥。参数与应用内一致（半径 4 / 偏移 1,2 px，20% 黑）。 -->
+    <TextView
+        android:id="@+id/widget_text_shadow"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingStart="10dp"
-        android:paddingEnd="10dp"
-        android:paddingTop="7dp"
+        android:paddingStart="2dp"
+        android:paddingEnd="2dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="4dp"
+        android:includeFontPadding="false"
+        android:text="便签"
+        android:textColor="#333333"
+        android:textSize="16sp"
+        android:gravity="top|start"
+        android:shadowColor="#33000000"
+        android:shadowRadius="4"
+        android:shadowDx="1"
+        android:shadowDy="2"
+        android:visibility="gone" />
+
+    <!-- 待办静态文字层：与便签层同款，只多 lineSpacingExtra="5dp"。
+         待办静态通道需要比便签更宽的行距（与滚动通道条目间隔 5dp 同节奏），而行距
+         只能靠 XML 属性承载：RemoteViews 的 setFloat 只能调单参方法，TextView 只有
+         两参的 setLineSpacing，私有 setLineSpacingAdd 宿主根本不认（实测无效）。
+         便签仍走 widget_text（行距紧凑），两层按便签/待办类型互斥显示。 -->
+    <TextView
+        android:id="@+id/widget_text_todo"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingStart="2dp"
+        android:paddingEnd="2dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="4dp"
+        android:includeFontPadding="false"
+        android:lineSpacingExtra="5dp"
+        android:text="待办"
+        android:textColor="#333333"
+        android:textSize="16sp"
+        android:gravity="top|start" />
+
+    <TextView
+        android:id="@+id/widget_text_todo_shadow"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingStart="2dp"
+        android:paddingEnd="2dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="4dp"
+        android:includeFontPadding="false"
+        android:lineSpacingExtra="5dp"
+        android:text="待办"
+        android:textColor="#333333"
+        android:textSize="16sp"
+        android:gravity="top|start"
+        android:shadowColor="#33000000"
+        android:shadowRadius="4"
+        android:shadowDx="1"
+        android:shadowDy="2"
+        android:visibility="gone" />
+
+    <!-- 滚动层：开启"滚动"的便签/待办由 ListView 原生滚动展示全文。
+         左右内边距 2dp/2dp 由容器 XML 承载（2026-11-19 定稿回归，对称；总宽 4dp 与行宽预算
+         扣宽一致；宿主只在新部件重新 inflate 时读 XML padding，改后需删掉重加生效）。
+         三个列表分别固定 layout_gravity 顶/中/底，按便签 alignV 显隐其一——
+         垂直对齐交给布局重力精确完成，不再依赖"组件高度补空行"（宿主上报高度
+         与实际渲染高度在 MIUI 上存在偏差，补行无法精确贴底）。
+         wrap_content：内容不足一屏时列表按内容收缩、由重力定位；超出时受父容器约束可滚动。
+         clipToPadding 必须为 true：行内容裁剪在内边距内，滚动时不会画到边框环上 -->
+    <ListView
+        android:id="@+id/widget_list_top"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:paddingStart="2dp"
+        android:paddingEnd="2dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="4dp"
+        android:clipToPadding="true"
+        android:divider="@null"
+        android:dividerHeight="0dp"
+        android:cacheColorHint="#00000000"
+        android:scrollbars="none"
+        android:visibility="gone" />
+
+    <ListView
+        android:id="@+id/widget_list_center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:paddingStart="2dp"
+        android:paddingEnd="2dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="4dp"
+        android:clipToPadding="true"
+        android:divider="@null"
+        android:dividerHeight="0dp"
+        android:cacheColorHint="#00000000"
+        android:scrollbars="none"
+        android:visibility="gone" />
+
+    <ListView
+        android:id="@+id/widget_list_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:paddingStart="2dp"
+        android:paddingEnd="2dp"
+        android:paddingTop="6dp"
         android:paddingBottom="4dp"
         android:clipToPadding="true"
         android:divider="@null"

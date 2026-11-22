@@ -24,19 +24,30 @@
         android:layout_marginTop="16dp"
         android:gravity="center"
         android:lineSpacingExtra="4dp"
-        android:text="正在请求系统添加小部件…"
+        android:text="点击下方按钮，把“正闲拾笺”小部件添加到桌面："
         android:textColor="#424242"
         android:textSize="15sp" />
+
+    <!-- 一键添加按钮：点击后才发起系统 pin 请求（自动请求会被 MIUI 确认框
+         覆盖导致引导页一闪而过，用户看清指引后再操作） -->
+    <Button
+        android:id="@+id/btn_pin_action"
+        style="@style/Widget.Material3.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="一键添加到桌面"
+        android:textSize="16sp" />
 
     <!-- 权限提示：一键添加依赖桌面快捷方式权限，未授权时需到系统权限管理开启 -->
     <TextView
         android:id="@+id/tv_pin_permission_hint"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="14dp"
         android:gravity="center"
         android:lineSpacingExtra="3dp"
-        android:text="本应用需要在权限管理中开启桌面快捷方式的权限。"
+        android:text="一键添加需在权限管理中开启“桌面快捷方式”权限。"
         android:textColor="#9E9E9E"
         android:textSize="13sp" />
 
@@ -45,6 +56,6 @@
         style="@style/Widget.Material3.Button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="20dp"
         android:text="关闭" />
 </LinearLayout>

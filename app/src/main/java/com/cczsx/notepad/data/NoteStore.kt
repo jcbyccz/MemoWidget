@@ -31,7 +31,11 @@ object NoteStore {
     }
 
     fun saveDefaultStyle(note: Note) {
-        prefs().edit().putString(KEY_DEFAULT, note.toJson().toString()).apply()
+        // 照片属内容不属于样式：存快照前清空照片并去掉 id，避免默认样式残留具体便签的照片引用
+        prefs().edit().putString(
+            KEY_DEFAULT,
+            note.copy(id = -1L, photos = mutableListOf()).toJson().toString()
+        ).apply()
     }
 
     // ---------- 最近使用的自定义颜色（编辑页每行独立记录，最多 3 个） ----------
@@ -78,6 +82,7 @@ object NoteStore {
         alignH = src.alignH
         alignV = src.alignV
         scrollEnabled = src.scrollEnabled
+        bgPhoto = src.bgPhoto
     }
 
     private fun nextId(): Long {

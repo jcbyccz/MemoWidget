@@ -52,6 +52,11 @@ class SettingsActivity : AppCompatActivity() {
             startActivity(android.content.Intent(this, RecycleBinActivity::class.java))
         }
 
+        // 排版校准向导入口：观感问答收敛部件满行字距系数（budget_factor）
+        findViewById<android.view.View>(R.id.btn_calib_wizard).setOnClickListener {
+            startActivity(android.content.Intent(this, CalibrationWizardActivity::class.java))
+        }
+
         bindBackupUi()
     }
 

@@ -45,12 +45,30 @@ object BackupManager {
 
     // ---------- 快照 / 导入 ----------
 
-    /** 生成完整快照 JSON 文本 */
+    /** 生成完整快照 JSON 文本（照片文件以 base64 内嵌，换设备恢复不丢照片） */
     fun snapshotJson(): String {
         val notes = NoteStore.allRecords()
         val todos = TodoStore.allRecords()
         val a = JSONArray().also { arr -> notes.forEach { arr.put(it.toJson()) } }
         val b = JSONArray().also { arr -> todos.forEach { arr.put(it.toJson()) } }
+        // 收集被引用的照片文件（便签照片 + 背景），内嵌进快照
+        val names = mutableSetOf<String>()
+        notes.forEach { n ->
+            names.addAll(n.photos)
+            if (n.bgPhoto.isNotBlank()) names.add(n.bgPhoto)
+        }
+        todos.forEach {
+            if (it.bgPhoto.isNotBlank()) names.add(it.bgPhoto)
+            names.addAll(it.photos)
+        }
+        val photoFiles = JSONObject()
+        if (::appContext.isInitialized) {
+            names.forEach { name ->
+                PhotoStore.readBytes(appContext, name)?.let { bytes ->
+                    photoFiles.put(name, android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP))
+                }
+            }
+        }
         return JSONObject()
             .put("app", "正闲拾笺")
             .put("backupAt", System.currentTimeMillis())
@@ -58,6 +76,7 @@ object BackupManager {
             .put("todoCount", todos.size)
             .put("notes", a)
             .put("todos", b)
+            .put("photoFiles", photoFiles)
             .toString()
     }
 
@@ -68,6 +87,17 @@ object BackupManager {
     fun mergeImport(json: String): Int {
         return try {
             val o = JSONObject(json)
+            // 先还原照片文件，再合并记录（记录里的文件名引用才有落点；旧备份无此字段则跳过）
+            val pf = o.optJSONObject("photoFiles")
+            if (pf != null && ::appContext.isInitialized) {
+                for (name in pf.keys()) {
+                    try {
+                        val bytes = android.util.Base64.decode(pf.getString(name), android.util.Base64.NO_WRAP)
+                        PhotoStore.writeBytes(appContext, name, bytes)
+                    } catch (_: Exception) {
+                    }
+                }
+            }
             val notes = o.optJSONArray("notes") ?: JSONArray()
             val todos = o.optJSONArray("todos") ?: JSONArray()
             val noteList = (0 until notes.length()).map { Note.fromJson(notes.getJSONObject(it)) }

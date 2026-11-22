@@ -222,6 +222,33 @@
             android:layout_marginTop="2dp"
             android:textColor="#9E9E9E"
             android:textSize="12sp" />
+
+        <!-- 小部件排版：满行字距校准（观感问答向导） -->
+        <TextView style="@style/SettingItemLabel" android:text="小部件排版" />
+
+        <LinearLayout
+            android:id="@+id/btn_calib_wizard"
+            android:layout_width="match_parent"
+            android:layout_height="46dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?android:attr/selectableItemBackground">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="排版校准向导"
+                android:textColor="#212121"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="通过几轮观感问答校准满行字距：让部件文字右缘贴边且上下行密度一致，适配不同设备的桌面渲染差异。"
+            android:textColor="#9E9E9E"
+            android:textSize="12sp" />
     </LinearLayout>
     </LinearLayout>
     </ScrollView>

@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="?attr/colorSurface">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:navigationIcon="@drawable/ic_back"
+        app:title="排版校准"
+        app:titleTextColor="@color/toolbar_text" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:paddingTop="20dp">
+
+            <!-- 校准目标选择：滚动通道行宽 / 静态通道行宽 / 静态通道字号步进 -->
+            <RadioGroup
+                android:id="@+id/rg_target"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/rb_scroll"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="true"
+                    android:text="滚动·行宽"
+                    android:textSize="13sp" />
+
+                <RadioButton
+                    android:id="@+id/rb_static_budget"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="静态·行宽"
+                    android:textSize="13sp" />
+
+                <RadioButton
+                    android:id="@+id/rb_static_font"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="静态·字号"
+                    android:textSize="13sp" />
+            </RadioGroup>
+
+            <!-- 当前状态：轮次 + 系数 -->
+            <TextView
+                android:id="@+id/tv_round"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="准备校准"
+                android:textColor="#212121"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_factor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="#757575"
+                android:textSize="14sp" />
+
+            <!-- 介绍面板 -->
+            <LinearLayout
+                android:id="@+id/ll_intro"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:lineSpacingExtra="4dp"
+                    android:text="不同设备的桌面宿主对部件文字的渲染口径不同（是否应用系统字体缩放、部件物理宽与规格宽的偏差），应用侧无法直接测量，只能通过观感反馈闭环校准。目标：满行右缘贴边或仅留小空白、字距一致不压字；静态通道还需满行不被二次折行（无孤字行）。"
+                    android:textColor="#424242"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:lineSpacingExtra="4dp"
+                    android:text="先在顶部选择要校准的系数：\n\n滚动·行宽——滚动部件满行字距（跨线捕获，可较激进）；\n静态·行宽——静态部件满行右缘收紧（静态超宽不压字只会二次折行，步进保守）；\n静态·字号——静态部件每字步进估算（偏小则满行右空大，偏大则孤字行）。\n\n流程：每轮回答一个观感问题，共 2~3 轮。保存后会自动刷新所有部件，若个别部件未变化，微调一次部件尺寸即可。观察请回到桌面。"
+                    android:textColor="#424242"
+                    android:textSize="14sp" />
+
+                <Button
+                    android:id="@+id/btn_start"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:text="开始校准" />
+
+                <Button
+                    android:id="@+id/btn_manual"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="直接设置系数（高级）" />
+            </LinearLayout>
+
+            <!-- 问答面板 -->
+            <LinearLayout
+                android:id="@+id/ll_ask"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:lineSpacingExtra="4dp"
+                    android:text="请观察桌面部件的满行（折行处那一行）右侧观感后作答：\n（保存已自动刷新部件；若显示未变化，请微调一次部件尺寸后再观察。静态系数出现孤字行时选“太挤”。）"
+                    android:textColor="#424242"
+                    android:textSize="14sp" />
+
+                <Button
+                    android:id="@+id/btn_blank"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="空得多：右侧留白超过半个字" />
+
+                <Button
+                    android:id="@+id/btn_ok"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="刚好：右缘贴边或小空白，字距正常" />
+
+                <Button
+                    android:id="@+id/btn_tight"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="太挤：字距明显偏紧、字显小或有孤字行" />
+            </LinearLayout>
+
+            <!-- 结果面板 -->
+            <LinearLayout
+                android:id="@+id/ll_done"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/tv_done"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:lineSpacingExtra="4dp"
+                    android:textColor="#424242"
+                    android:textSize="14sp" />
+
+                <Button
+                    android:id="@+id/btn_finish"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:text="完成" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

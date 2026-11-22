@@ -158,31 +158,75 @@
                 android:orientation="vertical"
                 android:visibility="gone" />
 
+            <!-- 待办照片：与便签编辑页同款，编辑区下方竖向排列、每张独占一行、靠左，
+                 显示尺寸贴合照片比例（宽=内容区宽，超 500dp 等比缩小），无白框描边；
+                 点击进大图浏览，照片右上角 ✕ 快捷删除；无照片时整块隐藏 -->
+            <LinearLayout
+                android:id="@+id/photo_strip"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="14dp"
+                android:visibility="gone" />
+
         </LinearLayout>
     </ScrollView>
 
-    <!-- ===== 底部固定区：时间与「设置小部件设计」按钮固定在底部，长内容不需滚动 ===== -->
-    <!-- 修改时间（固定于底部区顶部，右对齐） -->
-    <TextView
-        android:id="@+id/tv_update_time"
+    <!-- ===== 底部固定区：最左侧“添加照片”按钮 + 修改时间（右对齐） ===== -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginTop="6dp"
-        android:gravity="end"
-        android:textColor="#9E9E9E"
-        android:textSize="12sp" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
 
-    <!-- 设置面板（默认隐藏；展开时全部展开显示完整内容，正文区被整体上移压缩，
-         「将当前样式设置为默认」位于面板最底部；与便签编辑页同款） -->
-    <ScrollView
+        <ImageView
+            android:id="@+id/btn_photo"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:padding="4dp"
+            android:contentDescription="添加照片"
+            android:src="@drawable/ic_image"
+            app:tint="#9E9E9E"
+            android:background="?android:attr/selectableItemBackgroundBorderless" />
+
+        <TextView
+            android:id="@+id/tv_update_time"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:textColor="#9E9E9E"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <!-- 设置面板（默认隐藏；展开时设计内容全部展示——面板高度自适应 wrap_content，
+         不再与正文按 4:6 分屏；正文区收缩让位，预览与全部设置项同时可见；与便签编辑页同款） -->
+    <LinearLayout
         android:id="@+id/style_panel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fillViewport="true"
-        android:scrollbars="none"
+        android:orientation="vertical"
         android:visibility="gone">
+
+        <!-- 预览文本：置顶固定（不随设置项滚动） -->
+        <TextView
+            android:id="@+id/preview_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="44dp"
+            android:maxLines="3"
+            android:ellipsize="end"
+            android:padding="8dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="8dp"
+            android:text="小部件预览示例"
+            android:textSize="14sp"
+            android:textColor="#333333"
+            android:background="@color/note_default_bg" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -192,20 +236,6 @@
             android:paddingEnd="16dp"
             android:paddingTop="6dp"
             android:paddingBottom="6dp">
-
-                <TextView
-                    android:id="@+id/preview_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:minHeight="44dp"
-                    android:maxLines="3"
-                    android:ellipsize="end"
-                    android:padding="8dp"
-                    android:text="小部件预览示例"
-                    android:textSize="14sp"
-                    android:textColor="#333333"
-                    android:background="@color/note_default_bg"
-                    android:layout_marginTop="10dp" />
 
                 <!-- 颜色行：字体颜色 → 边框颜色 → 背景颜色 -->
                 <LinearLayout
@@ -287,6 +317,47 @@
                             android:orientation="horizontal"
                             android:padding="3dp" />
                     </HorizontalScrollView>
+                </LinearLayout>
+
+                <!-- 背景照片：小部件背景可用相册照片；与背景颜色叠加（选“无背景色”即纯照片） -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center_vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="背景照片"
+                        android:textSize="14sp"
+                        android:textColor="#757575"
+                        android:layout_marginEnd="12dp" />
+                    <Button
+                        android:id="@+id/btn_bg_photo"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:minWidth="0dp"
+                        android:minHeight="36dp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:textSize="13sp"
+                        android:textColor="#37474F"
+                        android:text="从相册选择" />
+                    <Button
+                        android:id="@+id/btn_bg_photo_clear"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:minWidth="0dp"
+                        android:minHeight="36dp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:textSize="13sp"
+                        android:textColor="#37474F"
+                        android:text="清除"
+                        android:visibility="gone" />
                 </LinearLayout>
 
                 <TextView style="@style/SectionLabel" android:text="背景不透明度（0% = 全透明）" />
@@ -487,30 +558,6 @@
                         android:text="置顶" />
                 </LinearLayout>
 
-                <!-- 移入回收站 + 保存 -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="8dp">
-                    <Button
-                        android:id="@+id/btn_delete"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="移入回收站"
-                        android:textColor="@color/error_red" />
-                    <Button
-                        android:id="@+id/btn_save"
-                        style="@style/Widget.Material3.Button"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="12dp"
-                        android:text="保存" />
-                </LinearLayout>
-
                 <!-- 将当前样式保存为默认样式：全称按钮，面板最底部 -->
                 <Button
                     android:id="@+id/btn_set_default"
@@ -526,22 +573,63 @@
                     android:textColor="#37474F"
                     android:text="将当前样式设置为默认" />
         </LinearLayout>
-    </ScrollView>
+    </LinearLayout>
 
-    <!-- 设置小部件设计按钮（固定屏幕最底部；再点一次收起面板并丝滑回底） -->
-    <Button
-        android:id="@+id/btn_widget_design"
-        style="@style/Widget.Material3.Button.OutlinedButton"
+    <!-- 底部操作行（固定屏幕最底部）：删除 | 设置小部件 | 保存 -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="44dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginTop="6dp"
-        android:layout_marginBottom="12dp"
-        android:insetTop="0dp"
-        android:insetBottom="0dp"
-        android:strokeColor="#E0E0E0"
-        android:text="设置小部件设计"
-        android:textColor="#212121"
-        android:textSize="14sp" />
+        android:layout_marginBottom="12dp">
+
+        <Button
+            android:id="@+id/btn_delete"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp"
+            android:maxLines="1"
+            android:text="删除"
+            android:textColor="@color/error_red"
+            android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/btn_widget_design"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp"
+            android:maxLines="1"
+            android:strokeColor="#E0E0E0"
+            android:text="设置小部件"
+            android:textColor="#212121"
+            android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/btn_save"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp"
+            android:maxLines="1"
+            android:text="保存"
+            android:textSize="14sp" />
+    </LinearLayout>
 </LinearLayout>

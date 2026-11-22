@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application
+        android:name=".NotepadApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -42,9 +43,24 @@
             android:name=".ui.RecycleBinActivity"
             android:exported="false" />
 
+        <!-- 照片裁剪（便签照片选定后的编辑步骤） -->
+        <activity
+            android:name=".ui.CropEditActivity"
+            android:exported="false" />
+
+        <!-- 大图浏览（编辑页缩略图点开，可滑动/删除，带张数计数） -->
+        <activity
+            android:name=".ui.PhotoViewerActivity"
+            android:exported="false" />
+
         <!-- 设置 -->
         <activity
             android:name=".ui.SettingsActivity"
+            android:exported="false" />
+
+        <!-- 排版校准向导（设置页入口，观感问答收敛部件满行字距系数） -->
+        <activity
+            android:name=".ui.CalibrationWizardActivity"
             android:exported="false" />
 
         <!-- 桌面小部件 -->
@@ -80,6 +96,12 @@
             android:name=".widget.PinWidgetActivity"
             android:exported="true"
             android:excludeFromRecents="true" />
+
+        <!-- pin 请求的结果回调接收器（requestPinAppWidget 的 successCallback 目标，
+             无 UI；不注册则无法构造回调 PendingIntent，MIUI 会静默丢弃 pin 请求） -->
+        <receiver
+            android:name=".widget.PinWidgetActivity$PinResultReceiver"
+            android:exported="false" />
 
     </application>
 </manifest>

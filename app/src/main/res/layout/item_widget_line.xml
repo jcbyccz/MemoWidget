@@ -1,11 +1,162 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 小部件滚动列表的单行文字。
-     includeFontPadding=false + 0 内边距：行高≈字号×1.17，12sp 时 2 格高组件可见 4 行 -->
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/widget_line_text"
+<!-- 小部件滚动列表的单行。
+     includeFontPadding=false：行高≈字号×1.17，12sp 时 2 格高组件可见 4 行。
+     maxLines=1：行高恒定单行——宿主(MIUI)对行的测量宽度实测约为渲染宽的 0.87，
+     不限制行数时“测量 2 行、渲染 1 行”，行高按测量多占一个行位就是用户看到的
+     “空白行”；限制单行后无论测量怎么折行，行高都为一个行位，空白行不可能出现。
+
+     行内三类成员，按部件样式互斥显示。宿主复用行 convertView 时未触及的视图会
+     残留上次状态，所以代码对每一层都显式设置可见性（见 MemoWidgetService）：
+     1) 八个同款 TextView——4 种 textStyle（普通/粗/斜/粗斜）× 2 种投影（无/有）矩阵：
+        MIUI 宿主对列表行 TextView 会丢 Spannable 效果（UnderlineSpan、StrikethroughSpan、
+        StyleSpan 粗斜体实测全丢），RemoteViews 也设不了 setShadowLayer；
+        粗斜体与投影只能靠预置 XML 属性（textStyle / shadow*）承载——XML 布局属性
+        像素实证宿主认（投影层已验证生效）。需要哪种组合就显示哪层，其余 GONE。
+        各层行高一致（同 fontMetrics），切换不改变布局节奏。
+     2) 三个 ImageView（左/中/右重力档位）——承载“效果位图”：
+        - 小部件（估算位图总量 ≤1.5MB）：整行文字自绘位图（效果所见即所得）；
+        - 大部件：低墨迹下划线细条位图（整行位图总量过大时会被 MIUI 静默丢弃）；
+        位图宽 = 文字实际宽（wrap_content），水平对位交给布局重力，与宿主上报宽无关。 -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:includeFontPadding="false"
-    android:textColor="#333333"
-    android:textSize="14sp"
-    android:gravity="start" />
+    android:layout_height="wrap_content">
+
+    <!-- 8 层文字：普通 / 粗 / 斜 / 粗斜 × 无投影 / 有投影（参数与应用内一致：半径 4 / 偏移 1,2 px / 20% 黑） -->
+    <TextView
+        android:id="@+id/widget_line_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:includeFontPadding="false"
+        android:maxLines="1"
+        android:textColor="#333333"
+        android:textSize="14sp"
+        android:gravity="start" />
+
+    <TextView
+        android:id="@+id/widget_line_text_b"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:includeFontPadding="false"
+        android:maxLines="1"
+        android:textColor="#333333"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:gravity="start"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/widget_line_text_i"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:includeFontPadding="false"
+        android:maxLines="1"
+        android:textColor="#333333"
+        android:textSize="14sp"
+        android:textStyle="italic"
+        android:gravity="start"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/widget_line_text_bi"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:includeFontPadding="false"
+        android:maxLines="1"
+        android:textColor="#333333"
+        android:textSize="14sp"
+        android:textStyle="bold|italic"
+        android:gravity="start"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/widget_line_text_shadow"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:includeFontPadding="false"
+        android:maxLines="1"
+        android:textColor="#333333"
+        android:textSize="14sp"
+        android:gravity="start"
+        android:shadowColor="#33000000"
+        android:shadowRadius="4"
+        android:shadowDx="1"
+        android:shadowDy="2"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/widget_line_text_shadow_b"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:includeFontPadding="false"
+        android:maxLines="1"
+        android:textColor="#333333"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:gravity="start"
+        android:shadowColor="#33000000"
+        android:shadowRadius="4"
+        android:shadowDx="1"
+        android:shadowDy="2"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/widget_line_text_shadow_i"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:includeFontPadding="false"
+        android:maxLines="1"
+        android:textColor="#333333"
+        android:textSize="14sp"
+        android:textStyle="italic"
+        android:gravity="start"
+        android:shadowColor="#33000000"
+        android:shadowRadius="4"
+        android:shadowDx="1"
+        android:shadowDy="2"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/widget_line_text_shadow_bi"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:includeFontPadding="false"
+        android:maxLines="1"
+        android:textColor="#333333"
+        android:textSize="14sp"
+        android:textStyle="bold|italic"
+        android:gravity="start"
+        android:shadowColor="#33000000"
+        android:shadowRadius="4"
+        android:shadowDx="1"
+        android:shadowDy="2"
+        android:visibility="gone" />
+
+    <!-- 效果位图层：三个重力档位（左/中/右），用其一，其余 GONE；
+         wrap_content 宽 = 位图宽（文字宽或下划线细条宽），scaleType 不缩放 -->
+    <ImageView
+        android:id="@+id/widget_line_img_l"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start|bottom"
+        android:scaleType="fitStart"
+        android:contentDescription="@null"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/widget_line_img_c"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|bottom"
+        android:scaleType="fitStart"
+        android:contentDescription="@null"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/widget_line_img_r"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:scaleType="fitStart"
+        android:contentDescription="@null"
+        android:visibility="gone" />
+</FrameLayout>

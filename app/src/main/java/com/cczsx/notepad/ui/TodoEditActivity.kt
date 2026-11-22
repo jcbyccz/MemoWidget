@@ -20,10 +20,13 @@ import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.cczsx.notepad.R
 import com.cczsx.notepad.data.NoteStore
+import com.cczsx.notepad.data.PhotoStore
 import com.cczsx.notepad.data.Todo
 import com.cczsx.notepad.data.TodoItem
 import com.cczsx.notepad.data.TodoStore
@@ -45,6 +48,9 @@ class TodoEditActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_ID = "todo_id"
         const val EXTRA_FROM_WIDGET = "from_widget"
+
+        /** 待办照片上限（与便签一致） */
+        const val MAX_PHOTOS = 10
 
         private val BG_COLORS = intArrayOf(
             0xFFE3F3E7.toInt(),   // 薄荷
@@ -114,6 +120,54 @@ class TodoEditActivity : AppCompatActivity() {
     private lateinit var btnUndo: ImageView
     private lateinit var btnRedo: ImageView
 
+    // ---------- 待办照片（与便签编辑页同款：插入图片 / 裁剪 / 大图浏览 / 快捷删除） ----------
+    private lateinit var btnPhoto: ImageView
+    private lateinit var photoStrip: LinearLayout
+
+    /** 选一张待办照片（系统相册选择器，无需存储权限），选中后进入裁剪页 */
+    private val pickTodoPhoto = registerForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) cropTodoPhoto.launch(
+            android.content.Intent(this, CropEditActivity::class.java)
+                .putExtra(CropEditActivity.EXTRA_URI, uri.toString())
+                .putExtra(CropEditActivity.EXTRA_PREFIX, "t${todo.id}_")
+        )
+    }
+
+    /** 裁剪页返回：把裁剪后的照片加入待办（保存时随待办一起落库） */
+    private val cropTodoPhoto = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { res ->
+        if (res.resultCode == RESULT_OK) {
+            val name = res.data?.getStringExtra(CropEditActivity.EXTRA_NAME)
+            if (!name.isNullOrBlank()) {
+                todo.photos.add(name)
+                rebuildPhotoStrip()
+            }
+        }
+    }
+
+    /** 大图浏览返回：同步被删除的照片（删文件 + 更新待办 + 刷新缩略图） */
+    private val viewTodoPhotos = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { res ->
+        if (res.resultCode == RESULT_OK) {
+            val remain = res.data?.getStringArrayListExtra(PhotoViewerActivity.EXTRA_RESULT)
+            if (remain != null) {
+                todo.photos.filter { it !in remain }.forEach { PhotoStore.delete(this, it) }
+                todo.photos.clear()
+                todo.photos.addAll(remain)
+                rebuildPhotoStrip()
+            }
+        }
+    }
+
+    // ---------- 小部件背景照片（与便签页同款） ----------
+    private val pickBgPhoto = registerForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri -> if (uri != null) setBgPhoto(uri) }
+
     private val titleWatcher = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -121,7 +175,11 @@ class TodoEditActivity : AppCompatActivity() {
             todo.title = s?.toString().orEmpty()
             recordChange()
         }
-        override fun afterTextChanged(s: Editable?) {}
+        override fun afterTextChanged(s: Editable?) {
+            // 行首空白统一 0.5 字宽/字符（2026-11-19）：与小部件缩进同口径，
+            // 编辑页所见即部件所得；只改显示度量不动内容（含撤销/重做 setText 触发）
+            TextStyler.applyLeadingSpaceSpans(edTitle)
+        }
     }
 
     // ---------- 生命周期 ----------
@@ -164,22 +222,134 @@ class TodoEditActivity : AppCompatActivity() {
             Toast.makeText(this, "已设为默认样式", Toast.LENGTH_SHORT).show()
         }
         findViewById<TextView>(R.id.btn_add_item).setOnClickListener { addItem() }
-        // 设置小部件设计：点击展开/收起底部设计面板（与便签编辑页同款；
-        // 展开时全部展开并把正文上移，每次展开都从顶部显示，避免残留滚动位置）
+        // 设置小部件：点击展开/收起底部设计面板（与便签编辑页同款；
+        // 展开时设计内容全部展示：面板高度自适应、不再与正文分屏，正文区收缩让位）
         findViewById<Button>(R.id.btn_widget_design).setOnClickListener {
-            val panel = findViewById<android.widget.ScrollView>(R.id.style_panel)
-            if (panel.visibility == View.VISIBLE) {
-                panel.visibility = View.GONE
-            } else {
-                panel.scrollTo(0, 0)
-                panel.visibility = View.VISIBLE
-            }
+            val panel = findViewById<View>(R.id.style_panel)
+            panel.visibility = if (panel.visibility == View.VISIBLE) View.GONE else View.VISIBLE
         }
         // 已完成区：标题行点击折叠/展开，齿轮弹菜单
         val collapseListener = View.OnClickListener { toggleDoneCollapsed() }
         btnDoneCollapse.setOnClickListener(collapseListener)
         tvDoneTitle.setOnClickListener(collapseListener)
         findViewById<ImageView>(R.id.btn_done_gear).setOnClickListener { showDoneSettings() }
+        setupBgPhotoButtons()
+        setupTodoPhotos()
+    }
+
+    /** 待办照片区初始化：底部“添加照片”按钮 + 编辑区缩略图区 */
+    private fun setupTodoPhotos() {
+        btnPhoto = findViewById(R.id.btn_photo)
+        photoStrip = findViewById(R.id.photo_strip)
+        btnPhoto.setOnClickListener {
+            if (todo.photos.size >= MAX_PHOTOS) {
+                Toast.makeText(this, "最多添加 $MAX_PHOTOS 张照片", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            pickTodoPhoto.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+        }
+        rebuildPhotoStrip()
+    }
+
+    /** 重建待办照片块：文字/条目下方竖向排列、靠左，每张独占一行，
+     *  显示尺寸贴合照片实际比例（宽度=内容区宽，高度按比例；高超 500dp 时整体
+     *  等比缩小），无白色圆角框与描边；点击进大图浏览，照片右上角 ✕ 快捷删除；
+     *  无照片时整块隐藏（与便签编辑页完全同款） */
+    private fun rebuildPhotoStrip() {
+        photoStrip.removeAllViews()
+        if (todo.photos.isEmpty()) {
+            photoStrip.visibility = View.GONE
+            return
+        }
+        photoStrip.visibility = View.VISIBLE
+        val density = resources.displayMetrics.density
+        val boxW = (resources.displayMetrics.widthPixels - 32 * density).toInt()
+        val maxH = (500 * density).toInt()
+        val badgePx = (22 * density).toInt()
+        todo.photos.forEachIndexed { index, name ->
+            val b = PhotoStore.loadBitmap(this, name, boxW, maxH, centerCrop = false)
+            var drawW = boxW
+            var drawH: Int
+            if (b != null && b.width > 0 && b.height > 0) {
+                drawH = (boxW.toLong() * b.height / b.width).toInt()
+                if (drawH > maxH) {
+                    drawH = maxH
+                    drawW = (maxH.toLong() * b.width / b.height).toInt()
+                }
+            } else {
+                drawH = maxH / 3
+            }
+            val wrap = FrameLayout(this)
+            wrap.layoutParams = LinearLayout.LayoutParams(drawW, drawH).apply {
+                bottomMargin = (10 * density).toInt()
+            }
+            val iv = ImageView(this)
+            iv.layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT
+            )
+            iv.scaleType = ImageView.ScaleType.FIT_CENTER
+            if (b != null) iv.setImageBitmap(b)
+            iv.setOnClickListener {
+                viewTodoPhotos.launch(
+                    android.content.Intent(this, PhotoViewerActivity::class.java)
+                        .putExtra(PhotoViewerActivity.EXTRA_PHOTOS, java.util.ArrayList(todo.photos))
+                        .putExtra(PhotoViewerActivity.EXTRA_INDEX, index)
+                )
+            }
+            val x = ImageView(this)
+            x.setImageResource(R.drawable.ic_close)
+            x.imageTintList = android.content.res.ColorStateList.valueOf(Color.WHITE)
+            x.background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(0xEE212121.toInt())
+            }
+            x.setPadding(3.dp(), 3.dp(), 3.dp(), 3.dp())
+            x.layoutParams = FrameLayout.LayoutParams(
+                badgePx, badgePx, Gravity.TOP or Gravity.END
+            )
+            x.setOnClickListener {
+                PhotoStore.delete(this, name)
+                todo.photos.remove(name)
+                rebuildPhotoStrip()
+            }
+            wrap.addView(iv)
+            wrap.addView(x)
+            photoStrip.addView(wrap)
+        }
+    }
+
+    /** 小部件设计面板：背景照片选择/清除 */
+    private fun setupBgPhotoButtons() {
+        findViewById<TextView>(R.id.btn_bg_photo).setOnClickListener {
+            pickBgPhoto.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+        }
+        findViewById<TextView>(R.id.btn_bg_photo_clear).setOnClickListener {
+            if (todo.bgPhoto.isNotBlank()) {
+                PhotoStore.delete(this, todo.bgPhoto)
+                todo.bgPhoto = ""
+                refreshPreview()
+                refreshBgPhotoState()
+            }
+        }
+        refreshBgPhotoState()
+    }
+
+    private fun setBgPhoto(uri: android.net.Uri) {
+        val name = PhotoStore.importFrom(this, uri, "bg${todo.id}_")
+        if (name == null) {
+            Toast.makeText(this, "照片读取失败，请重试", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (todo.bgPhoto.isNotBlank()) PhotoStore.delete(this, todo.bgPhoto)
+        todo.bgPhoto = name
+        refreshPreview()
+        refreshBgPhotoState()
+    }
+
+    /** 背景照片“清除”按钮的显隐 */
+    private fun refreshBgPhotoState() {
+        findViewById<TextView>(R.id.btn_bg_photo_clear).visibility =
+            if (todo.bgPhoto.isNotBlank()) View.VISIBLE else View.GONE
     }
 
     private fun bindViews() {
@@ -234,7 +404,8 @@ class TodoEditActivity : AppCompatActivity() {
         row.gravity = Gravity.CENTER_VERTICAL
         row.minimumHeight = (46 * density()).toInt()
         row.tag = item
-        row.setPadding(0, 0, 0, 0)
+        // 条目之间行距（上下各 3dp）：列表更透气，与用户「行距增加一点」的观感要求一致
+        row.setPadding(0, (3 * density()).toInt(), 0, (3 * density()).toInt())
 
         // 1. 拖拽把手：长按发起拖动
         val handle = ImageView(this)
@@ -564,6 +735,9 @@ class TodoEditActivity : AppCompatActivity() {
 
     private fun setupHistory() {
         edTitle.addTextChangedListener(titleWatcher)
+        // 初始 setText（bindViews/rebuildRows）先于 watcher 挂载：手动补一次行首空白宽度，
+        // 与便签编辑页同因（详见 EditNoteActivity.setupHistory 注释）
+        TextStyler.applyLeadingSpaceSpans(edTitle)
         btnUndo = findViewById(R.id.btn_undo)
         btnRedo = findViewById(R.id.btn_redo)
         btnUndo.setOnClickListener { undo() }

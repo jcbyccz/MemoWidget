@@ -27,6 +27,9 @@ data class Note(
     var alignH: Int = 1,
     var alignV: Int = 0,
     var scrollEnabled: Boolean = true,
+    // 照片：便签照片文件名（存在 files/photos/，最多 10 张）与小部件背景照片（空串 = 无）
+    var photos: MutableList<String> = mutableListOf(),
+    var bgPhoto: String = "",
     // 状态
     var pinned: Boolean = false,
     var deleted: Boolean = false,
@@ -40,10 +43,11 @@ data class Note(
     val effectiveFontColor: Int
         get() = if (fontColor == 0) 0xFF1F1F1F.toInt() else fontColor
 
-    /** 内容指纹：标题/正文/样式字段拼接。保存时与库中旧值对比，相同则不刷新修改时间 */
+    /** 内容指纹：标题/正文/样式字段/照片拼接。保存时与库中旧值对比，相同则不刷新修改时间 */
     fun contentKey(): String = listOf(
         title, content, bgColor, alpha, borderColor, fontColor, fontSize,
-        bold, italic, underline, shadow, alignH, alignV, scrollEnabled
+        bold, italic, underline, shadow, alignH, alignV, scrollEnabled,
+        photos.joinToString("|"), bgPhoto
     ).joinToString("§")
 
     fun toJson(): JSONObject = JSONObject().apply {
@@ -62,6 +66,10 @@ data class Note(
         put("alignH", alignH)
         put("alignV", alignV)
         put("scrollEnabled", scrollEnabled)
+        val photoArr = org.json.JSONArray()
+        photos.forEach { photoArr.put(it) }
+        put("photos", photoArr)
+        put("bgPhoto", bgPhoto)
         put("pinned", pinned)
         put("deleted", deleted)
         put("deletedAt", deletedAt)
@@ -87,6 +95,11 @@ data class Note(
             alignH = o.optInt("alignH", 1),
             alignV = o.optInt("alignV", 0),
             scrollEnabled = o.optBoolean("scrollEnabled", true),
+            photos = mutableListOf<String>().also { list ->
+                val arr = o.optJSONArray("photos")
+                if (arr != null) for (i in 0 until arr.length()) list.add(arr.getString(i))
+            },
+            bgPhoto = o.optString("bgPhoto", ""),
             pinned = o.optBoolean("pinned", false),
             deleted = o.optBoolean("deleted", false),
             deletedAt = o.optLong("deletedAt", 0L),
